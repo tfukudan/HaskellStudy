@@ -1,7 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes #-}
 
 import           Control.Lens        ((^?))
 import           Data.Aeson          (Value (..))
+import           Data.Aeson.QQ
 import           Data.Aeson.Lens     (key, nth)
 import qualified Data.HashMap.Strict as H
 import           Data.Hjq.Parser     (JqFilter (..), JqQuery (..),
@@ -81,19 +83,16 @@ applyFilterTest = TestList
   ]
   
 testData :: Value
-testData = Object $ H.fromList
-  [ ("string-field", String "string value")
-  , ("nested-field", Object $ H.fromList
-      [ ("inner-string", String "inner value")
-      , ("inner-number", Number 100)
+testData = [aesonQQ|
+  { "string-field": "string value"
+  , "nested-field":
+    { "inner-string": "inner value"
+    , "inner-number": 100
+    }
+  , "array-field":
+      [ "first field"
+      , "next field"
+      , { "object-in-array": "string value in object-in-array" }
       ]
-    )
-  , ("array-field", Array $ V.fromList
-      [ String "first field"
-      , String "next field"
-      , Object (H.fromList
-        [ ("object-in-array", String "string value in object-in-array")
-        ] )
-      ]
-    )
-  ]
+  }
+  |]
