@@ -3,7 +3,7 @@
 
 import           Control.Lens        ((^?))
 import           Data.Aeson          (Value (..))
-import           Data.Aeson.QQ
+import           Data.Aeson.QQ.Simple(aesonQQ)
 import           Data.Aeson.Lens     (key, nth)
 import qualified Data.HashMap.Strict as H
 import           Data.Hjq.Parser     (JqFilter (..), JqQuery (..),

@@ -55,4 +55,3 @@ tests:
     dependencies:
     - hjq
     - HUnit
-    - aeson-qq
