@@ -2,6 +2,7 @@
 
 module Data.Hjq.Query
   ( applyFilter
+  , executeQuery
   ) where
 
 import           Control.Lens        ((^?))
@@ -9,7 +10,7 @@ import           Control.Monad       (join)
 import           Data.Aeson          (Value (..))
 import           Data.Aeson.Lens     (key, nth)
 import qualified Data.HashMap.Strict as H
-import           Data.Hjq.Parser     (JqFilter (..))
+import           Data.Hjq.Parser     (JqFilter (..), JqQuery(..))
 import qualified Data.Text           as T (Text, pack)
 import qualified Data.Vector         as V
 
@@ -28,6 +29,11 @@ noteNotFoundError s Nothing  = Left $ "field name not found" <> s
 noteOutOfRangeError :: Int -> Maybe a -> Either T.Text a
 noteOutOfRangeError _ (Just x) = Right x
 noteOutOfRangeError s Nothing  = Left $ "out of range : " <> tshow s
+
+executeQuery:: JqQuery -> Value -> Either T.Text Value
+executeQuery (JqQueryObject o) v = fmap (Object . H.fromList) . sequence . fmap sequence $ fmap (fmap $ flip executeQuery v) o
+executeQuery (JqQueryArray l)  v = fmap (Array . V.fromList) . sequence $ fmap (flip executeQuery v) l
+executeQuery (JqQueryFilter f) v = applyFilter f v
 
 tshow :: Show a => a -> T.Text
 tshow = T.pack . show

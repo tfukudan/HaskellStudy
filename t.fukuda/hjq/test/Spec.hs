@@ -8,14 +8,14 @@ import           Data.Aeson.Lens     (key, nth)
 import qualified Data.HashMap.Strict as H
 import           Data.Hjq.Parser     (JqFilter (..), JqQuery (..),
                                       parseJqFilter, parseJqQuery)
-import           Data.Hjq.Query      (applyFilter)
+import           Data.Hjq.Query      (applyFilter, executeQuery)
 import           Data.Text           (Text, unpack)
 import qualified Data.Vector         as V
 import           Test.HUnit
 
 main :: IO ()
 main = do
-  runTestTT $ TestList [jqFilterParserTest, jqQueryParserTest, jqQueryParserSpacesTest, applyFilterTest]
+  runTestTT $ TestList [jqFilterParserTest, jqQueryParserTest, jqQueryParserSpacesTest, applyFilterTest, executeQueryTest]
   return ()
 
 jqFilterParserTest :: Test
@@ -96,3 +96,19 @@ testData = [aesonQQ|
       ]
   }
   |]
+
+executeQueryTest :: Test
+executeQueryTest = TestList
+  [ "executeQuery test 1" ~: executeQuery (unsafeParseQuery "{}") testData ~?= Right (Object $ H.fromList [])
+  , "executeQuery test 2" ~:
+      executeQuery (unsafeParseQuery "{ \"field1\": . , \"field2\": .string-field }") testData ~?=
+      Right (Object $ H.fromList [("field1", testData), ("field2", String "string value")])
+  , "executeQuery test 3" ~:
+      executeQuery (unsafeParseQuery "[ .string-field, .nested-field.inner-string ]") testData ~?=
+      Right (Array $ V.fromList [String "string value", String "inner value"])
+  ]
+
+unsafeParseQuery :: Text -> JqQuery
+unsafeParseQuery t = case parseJqQuery t of
+  Right q -> q
+  Left s -> error $ "PARSE FAILURE IN A TEST : " ++ unpack s
