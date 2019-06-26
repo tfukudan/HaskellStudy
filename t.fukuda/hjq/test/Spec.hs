@@ -99,13 +99,15 @@ testData = [aesonQQ|
 
 executeQueryTest :: Test
 executeQueryTest = TestList
-  [ "executeQuery test 1" ~: executeQuery (unsafeParseQuery "{}") testData ~?= Right (Object $ H.fromList [])
+  [ "executeQuery test 1" ~:
+    executeQuery (unsafeParseQuery "{}") testData ~?=
+    Right (Object $ H.fromList [])
   , "executeQuery test 2" ~:
-      executeQuery (unsafeParseQuery "{ \"field1\": . , \"field2\": .string-field }") testData ~?=
-      Right (Object $ H.fromList [("field1", testData), ("field2", String "string value")])
+    executeQuery (unsafeParseQuery "{ \"field1\": . , \"field2\": .string-field }") testData ~?=
+    Right (Object $ H.fromList [("field1", testData), ("field2", String "string value")])
   , "executeQuery test 3" ~:
-      executeQuery (unsafeParseQuery "[ .string-field, .nested-field.inner-string ]") testData ~?=
-      Right (Array $ V.fromList [String "string value", String "inner value"])
+    executeQuery (unsafeParseQuery "[ .string-field, .nested-field.inner-string ]") testData ~?=
+    Right (Array $ V.fromList [String "string value", String "inner value"])
   ]
 
 unsafeParseQuery :: Text -> JqQuery
