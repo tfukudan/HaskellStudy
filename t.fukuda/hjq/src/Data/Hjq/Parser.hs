@@ -12,12 +12,10 @@ import           Data.Attoparsec.Text
 import           Data.Text            (Text, pack)
 
 data JqFilter
-  = JqField Text
-            JqFilter
-  | JqIndex Int
-            JqFilter
+  = JqField Text JqFilter
+  | JqIndex Int JqFilter
   | JqNil
-  deriving (Show, Read, Eq)
+  deriving (Show, Eq)
 
 parseJqFilter :: Text -> Either Text JqFilter
 parseJqFilter s =
@@ -47,7 +45,7 @@ data JqQuery
   = JqQueryObject [(Text, JqQuery)]
   | JqQueryArray [JqQuery]
   | JqQueryFilter JqFilter
-  deriving (Show, Read, Eq)
+  deriving (Show, Eq)
 
 parseJqQuery :: Text -> Either Text JqQuery
 parseJqQuery s = showParseResult $ parse (jqQueryParser <* endOfInput) s `feed` ""

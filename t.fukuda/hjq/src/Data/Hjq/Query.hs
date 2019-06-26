@@ -15,9 +15,9 @@ import qualified Data.Vector         as V
 
 applyFilter :: JqFilter -> Value -> Either T.Text Value
 applyFilter (JqField fieldName n) obj@(Object _) =
-  join $ noteNotFoundError fieldName (fmap (applyFilter n) (obj ^? key fieldName))
+  join $ noteNotFoundError fieldName (applyFilter n <$> obj ^? key fieldName)
 applyFilter (JqIndex index n) array@(Array _) =
-  join $ noteOutOfRangeError index (fmap (applyFilter n) (array ^? nth index))
+  join $ noteOutOfRangeError index (applyFilter n <$> array ^? nth index)
 applyFilter JqNil v = Right v
 applyFilter f o = Left $ "unexpected pattern : " <> tshow f <> " : " <> tshow o
 
