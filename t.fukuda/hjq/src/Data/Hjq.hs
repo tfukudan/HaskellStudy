@@ -16,4 +16,5 @@ hjq :: B.ByteString -> T.Text -> Either T.Text B.ByteString
 hjq jsonString queryString = do
   value <- note "invalid json format." $ decode jsonString
   query <- parseJqQuery queryString
-  executeQuery query value >>= return . encodePretty
+  result <- executeQuery query value
+  return $ encodePretty result
